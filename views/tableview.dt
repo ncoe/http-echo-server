@@ -1,0 +1,22 @@
+extends layout
+prepend block head
+	title ="Welcome!"
+block content
+	.clear
+	h1 Welcome!
+	.datatable(id="datatable")
+		h2 Message
+		!{value}
+	.additemcontainer
+		h2 Enter text to echo
+		form(action='/getecho', method='POST')
+			table
+				tr
+					td
+						| Message
+					td
+						input(type="text", width="160", name="value")
+				tr
+					td
+					td
+						input(type='submit', value="Send")
