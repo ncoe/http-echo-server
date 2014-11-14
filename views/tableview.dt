@@ -9,14 +9,13 @@ block content
 		!{value}
 	.additemcontainer
 		h2 Enter text to echo
-		form(action='/getecho', method='POST')
+		form(action='/', method='POST')
 			table
 				tr
-					td
-						| Message
-					td
+					td Message
+					td<
 						input(type="text", width="160", name="value")
 				tr
 					td
-					td
+					td<
 						input(type='submit', value="Send")

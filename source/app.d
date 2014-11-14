@@ -1,46 +1,49 @@
 module app;
 
-import vibe.appmain;
-import vibe.http.form;
+import std.file;
+import std.functional;
+import std.path;
+
+import inifiled;
+
+import vibe.core.log;
 import vibe.http.router;
 import vibe.http.server;
 
+import config;
 
-class App {
-	private string m_prefix;
+void index(HTTPServerRequest req, HTTPServerResponse res) {
+	string value = req.form.get("value", "");
 
-	this(URLRouter router, string prefix="/")
-	{
-		m_prefix = prefix.length == 0 || prefix[$-1] != '/' ?  prefix ~ "/" : prefix;
-		registerFormInterface(router, this, prefix);
-	}
-
-	@property string prefix() const
-	{
-		return m_prefix;
-	}
-
-	void index(HTTPServerRequest req, HTTPServerResponse res)
-	{
-		getecho(req, res, "");
-	}
-
-	void getecho(HTTPServerRequest req, HTTPServerResponse res, string value)
-	{
-		res.headers["Content-Type"] = "text/html";
-		//res.render!("tableview.dt", req, res, value)();
-		res.renderCompat!("tableview.dt",
-		                    HTTPServerRequest, "req",
-		                    HTTPServerResponse, "res",
-		                    string, "value")(req, res, value);
-	}
+	res.headers["Content-Type"] = "text/html";
+	res.render!("tableview.dt", req, res, value)();
 }
 
-shared static this()
-{
+void errorPage(HTTPServerRequest req, HTTPServerResponse res, HTTPServerErrorInfo error) {
+	res.render!("error.dt", req, error);
+}
+
+shared static this() {
+	ServerConfig properties;
+	auto configFile = buildPath("config","server.ini");
+	if (configFile.exists) {
+		readINIFile(properties, configFile);
+	} else {
+		if (!exists("config")) {
+			mkdirRecurse("config");
+		}
+		writeINIFile(properties, configFile);
+	}
+
 	auto settings = new HTTPServerSettings;
-	settings.port = 8080;
+	settings.port = properties.port;
+	settings.errorPageHandler = toDelegate(&errorPage);
+
 	auto router = new URLRouter;
-	auto app = new App(router);
+	router.get("/", &index);
+	router.post("/", &index);
+
 	listenHTTP(settings, router);
+
+	logInfo("Open your browser to localhost:%s", properties.port);
 }

@@ -1,8 +1,0 @@
-{
-	"name": "http-echo-server",
-	"description": "Creates an http echo server",
-	"authors": [ "Nathan Coe" ],
-	"dependencies": {
-		"vibe-d": {"version": "~master"}
-	}
-}
