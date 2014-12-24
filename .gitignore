@@ -1,1 +1,4 @@
 /.dub/
+*.dll
+/dub.selections.json
+/config/
